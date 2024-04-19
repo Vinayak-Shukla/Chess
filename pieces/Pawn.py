@@ -8,8 +8,13 @@ class Pawn(ChessPiece):
     def __init__(self, color):
         super().__init__(color)
         self.image = pygame.image.load(f"images/{color}_pawn.png")
+        self.canEnPassant = False
+        self.enPassantSquare = None
 
     def is_valid_move(self, start_row, start_col, end_row, end_col, board):
+        if(self.canEnPassant):
+            if((end_row, end_col) == self.enPassantSquare):
+                return True
         # Pawn moves one square forward
         if start_col == end_col and end_row - start_row == 1 and self.color == white:
             # Check if the destination square is empty

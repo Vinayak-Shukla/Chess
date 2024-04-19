@@ -1,0 +1,131 @@
+import pygame
+from board.Chessboard import Chessboard
+from pieces.King import King
+from pieces.Pawn import Pawn
+from .PieceMovementLogic import PieceMovementLogic
+
+white = "white"
+black = "black"
+
+class Game():
+    def __init__(self):
+        self.boardObj = Chessboard()
+        self.board = self.boardObj.create_board()
+        self.piece_validity_check = PieceMovementLogic()
+        self.selected_piece = None
+        self.selected_square = None
+        self.current_turn = white  # Start with white's turn
+        self.possible_moves = None  # Initialize the board
+        self.square_size = self.boardObj.square_size
+        self.can_enPassant = False
+        self.enPassantSquare = None
+        # Other initialization logic
+    
+    def handle_events(self):
+        # Loop until the user clicks the close button
+        running = True
+        while running:
+            for event in pygame.event.get():
+                #Quitting
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.VIDEORESIZE:
+                    # Update dimensions if the window is resized
+                    self.boardObj.resize(event)
+                #Selecting a piece to move
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.handle_next_turn(self.current_turn)
+
+            self.boardObj.draw(self.selected_piece, self.selected_square, self.possible_moves)
+
+            # Update the display
+            pygame.display.flip()
+
+        # Quit Pygame
+        pygame.quit()
+    
+    def handle_next_turn(self, color):
+        x, y = pygame.mouse.get_pos()
+        row = y // self.square_size
+        col = x // self.square_size
+
+        self.possible_moves = self.piece_validity_check.get_valid_moves_for_every_piece(color, self.board)
+        
+        if self.selected_piece is None:
+            self.select_piece(row, col, color)
+            
+        else:
+            if((row, col) not in self.possible_moves[self.selected_square]):
+                self.selected_piece = None
+            elif (row, col) in self.possible_moves[self.selected_square]: 
+                if(isinstance(self.selected_piece, King)):
+                    castling, side = self.selected_piece.is_castling(self.selected_square[0], self.selected_square[1], row, col, self.board)
+                    if(castling):
+                        if(side=="short"):
+                            self.move_piece(row, 7, row, col-1)
+                        elif(side=="long"):
+                            self.move_piece(row,0,row,col+1)
+                if(isinstance(self.selected_piece, Pawn)):
+                    if(self.selected_piece.canEnPassant == True):
+                        print("ENPASSANT!!")
+                        if((row,col) == self.selected_piece.enPassantSquare):
+                            print(self.selected_square, row, col)
+                            if(color==white):
+                                self.board[row-1][col] = None
+                            else:
+                                self.board[row+1][col] = None                           
+                    elif(abs(row - self.selected_square[0]) == 2):
+                        if(self.check_adjacent_opposite_pawn(row,col+1,color)):
+                            self.board[row][col+1].canEnPassant = True
+                            self.board[row][col+1].enPassantSquare = (row+1,col)
+                            print(row, col)
+                        if(self.check_adjacent_opposite_pawn(row,col-1,color)):
+                            self.board[row][col-1].canEnPassant = True
+                            self.board[row][col-1].enPassantSquare = (row+1,col)
+                self.move_piece(self.selected_square[0],self.selected_square[1],row,col)
+                if(self.selected_piece.has_moved is False):
+                    self.selected_piece.has_moved = True
+                self.reset_selected_piece()
+                self.boardObj.update(self.board)
+                if(self.piece_validity_check.has_any_moves(self.opposite(color), self.board)):
+                    self.current_turn = self.opposite(color)
+                elif(self.piece_validity_check.is_checkmate(self.opposite(color), self.board)):
+                    if(color=="white"):
+                        print("Checkmate! White wins!")
+                    else:
+                        print("Checkmate! Black wins!!")
+                elif(self.piece_validity_check.is_stalemate(self.opposite(color), self.board)):
+                    print("It's a draw! Stalemate!")
+                else:
+                    print("Something went terribly wrong for us to end up here!")
+
+    def opposite(self, color):
+        if(color=="white"):
+            return "black"
+        elif(color=="black"):
+            return "white"
+        return "ERROR"
+    
+    
+    def select_piece(self, row, col, color):
+        if self.board[row][col] is not None and self.board[row][col].color == color:
+                self.selected_piece = self.board[row][col]
+                self.selected_piece.selected = True
+                self.selected_square = (row, col)
+
+    def move_piece(self, start_row, start_col, row, col):
+        self.board[row][col] = self.board[start_row][start_col]
+        self.board[start_row][start_col] = None
+    
+
+    def reset_selected_piece(self):
+        self.selected_piece.selected = False
+        self.selected_piece = None
+        self.possible_moves = None
+        
+    def check_adjacent_opposite_pawn(self, row, col, color):
+        if(col>7 or col < 0):
+            return False
+        if(isinstance(self.board[row][col], Pawn)):
+            return self.board[row][col].color == self.opposite(color)
+                

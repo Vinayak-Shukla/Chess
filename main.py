@@ -1,9 +1,9 @@
-from board.Chessboard import Chessboard
+from game.Game import Game
 # Define some colors
 
 def main():
-    chessboard = Chessboard()
-    chessboard.handle_events()
+    game = Game()
+    game.handle_events()
 
 if __name__ == "__main__":
     main()
