@@ -17,8 +17,7 @@ class Game():
         self.current_turn = white  # Start with white's turn
         self.possible_moves = None  # Initialize the board
         self.square_size = self.boardObj.square_size
-        self.can_enPassant = False
-        self.enPassantSquare = None
+        self.canEnPassant = False
         # Other initialization logic
     
     def handle_events(self):
@@ -57,7 +56,7 @@ class Game():
         else:
             if((row, col) not in self.possible_moves[self.selected_square]):
                 self.selected_piece = None
-            elif (row, col) in self.possible_moves[self.selected_square]: 
+            elif (row, col) in self.possible_moves[self.selected_square]:
                 if(isinstance(self.selected_piece, King)):
                     castling, side = self.selected_piece.is_castling(self.selected_square[0], self.selected_square[1], row, col, self.board)
                     if(castling):
@@ -67,37 +66,47 @@ class Game():
                             self.move_piece(row,0,row,col+1)
                 if(isinstance(self.selected_piece, Pawn)):
                     if(self.selected_piece.canEnPassant == True):
-                        print("ENPASSANT!!")
                         if((row,col) == self.selected_piece.enPassantSquare):
-                            print(self.selected_square, row, col)
                             if(color==white):
                                 self.board[row-1][col] = None
                             else:
-                                self.board[row+1][col] = None                           
+                                self.board[row+1][col] = None                      
                     elif(abs(row - self.selected_square[0]) == 2):
                         if(self.check_adjacent_opposite_pawn(row,col+1,color)):
+                            self.canEnPassant = True
                             self.board[row][col+1].canEnPassant = True
-                            self.board[row][col+1].enPassantSquare = (row+1,col)
+                            if(color=="white"):
+                                self.board[row][col+1].enPassantSquare = (row-1,col)
+                            else:
+                                self.board[row][col+1].enPassantSquare = (row+1,col)
                             print(row, col)
                         if(self.check_adjacent_opposite_pawn(row,col-1,color)):
+                            self.canEnPassant = True
                             self.board[row][col-1].canEnPassant = True
-                            self.board[row][col-1].enPassantSquare = (row+1,col)
+                            if(color=="white"):
+                                self.board[row][col-1].enPassantSquare = (row-1,col)
+                            else:
+                                self.board[row][col-1].enPassantSquare = (row+1,col)
+
                 self.move_piece(self.selected_square[0],self.selected_square[1],row,col)
                 if(self.selected_piece.has_moved is False):
                     self.selected_piece.has_moved = True
                 self.reset_selected_piece()
                 self.boardObj.update(self.board)
-                if(self.piece_validity_check.has_any_moves(self.opposite(color), self.board)):
-                    self.current_turn = self.opposite(color)
-                elif(self.piece_validity_check.is_checkmate(self.opposite(color), self.board)):
-                    if(color=="white"):
-                        print("Checkmate! White wins!")
-                    else:
-                        print("Checkmate! Black wins!!")
-                elif(self.piece_validity_check.is_stalemate(self.opposite(color), self.board)):
-                    print("It's a draw! Stalemate!")
+                if(self.canEnPassant):
+                    self.canEnPassant = False
                 else:
-                    print("Something went terribly wrong for us to end up here!")
+                    self.piece_validity_check.end_en_passant(color, self.board)
+                if(not self.valid_next_turn(self.opposite(color))):
+                    if(self.piece_validity_check.is_checkmate(self.opposite(color), self.board)):
+                            print(f"Checkmate! {self.color} wins!")
+                    elif(self.piece_validity_check.is_stalemate(self.opposite(color), self.board)):
+                        print("It's a draw! Stalemate!")
+                    else:
+                        print("Something went terribly wrong for us to end up here!")
+                else:
+                    self.current_turn = self.opposite(color)
+                
 
     def opposite(self, color):
         if(color=="white"):
@@ -128,4 +137,10 @@ class Game():
             return False
         if(isinstance(self.board[row][col], Pawn)):
             return self.board[row][col].color == self.opposite(color)
-                
+        
+    def valid_next_turn(self, color):
+        if(self.piece_validity_check.has_any_moves(self.opposite(color), self.board)):
+            return True
+        return False
+
+    

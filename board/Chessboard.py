@@ -5,6 +5,7 @@ from pieces.Knight import Knight
 from pieces.Queen import Queen
 from pieces.Rook import Rook
 from pieces.Bishop import Bishop
+import time
 
 WHITE = (88, 42, 13)
 BLACK = (240, 20, 63)
@@ -13,6 +14,7 @@ black = "black"
 
 class Chessboard:
     def __init__(self, width=800, height=800):
+        pygame.init()
         self.width = width
         self.height = height
         self.square_size = width // 8
@@ -67,3 +69,7 @@ class Chessboard:
         self.width, self.height = event.size
         self.square_size = min(self.width, self.height) // 8
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
+
+        
+        
+                

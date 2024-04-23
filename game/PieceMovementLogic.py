@@ -72,3 +72,12 @@ class PieceMovementLogic():
         elif(color=="black"):
             return "white"
         return "ERROR"
+    
+    def end_en_passant(self, color, board):
+        from pieces.Pawn import Pawn
+        
+        for row in range(8):
+            for col in range(8):
+                if(isinstance(board[row][col], Pawn)):
+                    board[row][col].canEnPassant=False
+                    board[row][col].enPassantSquare=None
