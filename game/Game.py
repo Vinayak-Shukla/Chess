@@ -47,6 +47,7 @@ class Game():
         # Quit Pygame
         pygame.quit()
     
+    #TODO - simplify and divide this into smaller functions for readability
     def handle_next_turn(self, color):
         x, y = pygame.mouse.get_pos()
         row = y // self.square_size
@@ -62,7 +63,7 @@ class Game():
                 self.selected_piece = None
             elif (row, col) in self.possible_moves[self.selected_square]:
                 if(isinstance(self.selected_piece, King)):
-                    castling, side = self.selected_piece.is_castling(self.selected_square[0], self.selected_square[1], row, col, self.board)
+                    castling, side = self.selected_piece.can_castle(self.selected_square[0], self.selected_square[1], row, col, self.board)
                     if(castling):
                         if(side=="short"):
                             self.move_piece(row, 7, row, col-1)
@@ -104,6 +105,7 @@ class Game():
                     self.canEnPassant = False
                 else:
                     self.piece_validity_check.end_en_passant(color, self.board)
+                #TODO-create displays for winning/stalemate for visual indicators
                 if(not self.valid_next_turn(self.opposite(color))):
                     if(self.piece_validity_check.is_checkmate(self.opposite(color), self.board)):
                             print(f"Checkmate! {self.color} wins!")
@@ -163,6 +165,8 @@ class Game():
                                 print(f"Promote to {piece}")
                                 self.promote(self.selected_piece,piece)
                                 running = False
+
+    #TODO - change the if else to switch for readability
     def promote(self, current, new):
         color = self.selected_piece.color
         if(new == "Knight"):

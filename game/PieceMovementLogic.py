@@ -1,18 +1,18 @@
 class PieceMovementLogic():
 
-    def get_valid_moves_for_every_piece(self, color, board):
+    def get_valid_moves_for_every_piece(self, color, board, opposite=False):
         valid_moves = {}
         for row in range(8):
             for col in range(8):
                 if(board[row][col] is not None and board[row][col].color == color):
-                    moves = self.get_all_valid_moves_for_a_piece(row, col, board)
+                    moves = self.get_all_valid_moves_for_a_piece(row, col, board, opposite)
                     valid_moves[(row, col)] = moves
 
         return valid_moves
     
-    def get_all_valid_moves_for_a_piece(self, row, col, board):
+    def get_all_valid_moves_for_a_piece(self, row, col, board, opposite=False):
 
-        moves = self.get_all_possible_moves_for_a_piece(row, col, board)
+        moves = self.get_all_possible_moves_for_a_piece(row, col, board, opposite)
         color = board[row][col].color
         piece = board[row][col]
         actual_moves = []
@@ -26,12 +26,17 @@ class PieceMovementLogic():
                 board[move_row][move_col] = temp_piece
         return actual_moves
 
-    def get_all_possible_moves_for_a_piece(self, row, col, board):
+    def get_all_possible_moves_for_a_piece(self, row, col, board, opposite=False):
+        from pieces.King import King
+
         moves = []
         piece = board[row][col]
         for end_row in range(8):
             for end_col in range(8):
-                if(piece.is_valid_move(row, col, end_row, end_col, board)):
+                if(isinstance(piece, King)):
+                    if(piece.is_valid_move(row, col, end_row, end_col, board, opposite)):
+                        moves.append((end_row, end_col))
+                elif(piece.is_valid_move(row, col, end_row, end_col, board)):
                     moves.append((end_row, end_col))
         return moves
     
@@ -60,10 +65,14 @@ class PieceMovementLogic():
     
     def is_stalemate(self, color, board):
         return not self.is_king_in_check(color,board) and not self.has_any_moves(color, board)
-        
+    
+    def get_attacked_squares(self, color, board, opposite=False):
+        moves = self.get_valid_moves_for_every_piece(self.opposite(color), board,True)
+        return moves
     
     def is_square_attacked(self, row, col, color, board):
-        moves = self.get_valid_moves_for_every_piece(self.opposite(color), board)
+
+        moves = self.get_attacked_squares(color, board,True)
         return (row,col) in moves.values()
     
     def opposite(self, color):

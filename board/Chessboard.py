@@ -70,6 +70,8 @@ class Chessboard:
         self.square_size = min(self.width, self.height) // 8
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
 
+    #TODO - Clean up promotion pieces code and remove a lot of unnecessary fluff
+    #TODO - divide this singular large function into smaller more readable functions
     def draw_promotion_pieces(self, color):
         WHITE = (255, 255, 255)
         BLACK = (0, 0, 0)
