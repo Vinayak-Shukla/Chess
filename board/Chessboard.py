@@ -70,6 +70,66 @@ class Chessboard:
         self.square_size = min(self.width, self.height) // 8
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
 
+    def draw_promotion_pieces(self, color):
+        WHITE = (255, 255, 255)
+        BLACK = (0, 0, 0)
+        GRAY = (200, 200, 200)
+        RED = (255, 0, 0)
+        
+        piece_positions = {
+            "Rook": (150, 50),
+            "Knight": (250, 50),
+            "Bishop": (50, 150),
+            "Queen": (150, 150)
+            }
+        
+        queen_img = pygame.image.load(f"images/{color}_queen.png")
+        rook_img = pygame.image.load(f"images/{color}_rook.png")
+        knight_img = pygame.image.load(f"images/{color}_knight.png")
+        bishop_img = pygame.image.load(f"images/{color}_bishop.png")
+
+        # Button dimensions
+        BUTTON_WIDTH = 80
+        BUTTON_HEIGHT = 80
+        BUTTON_MARGIN = 20
+
+        # Define buttons
+        total_button_width = len(piece_positions) * BUTTON_WIDTH + (len(piece_positions) - 1) * BUTTON_MARGIN
+
+        # Calculate starting position for the first button to center horizontally
+        start_x = (800 - total_button_width) // 2
+
+        # Define buttons
+        buttons = {
+            "Rook": pygame.Rect(start_x + (BUTTON_WIDTH + BUTTON_MARGIN), 300, BUTTON_WIDTH, BUTTON_HEIGHT),
+            "Knight": pygame.Rect(start_x + 2 * (BUTTON_WIDTH + BUTTON_MARGIN), 300, BUTTON_WIDTH, BUTTON_HEIGHT),
+            "Bishop": pygame.Rect(start_x + 3 * (BUTTON_WIDTH + BUTTON_MARGIN), 300, BUTTON_WIDTH, BUTTON_HEIGHT),
+            "Queen": pygame.Rect(start_x + 4 * (BUTTON_WIDTH + BUTTON_MARGIN), 300, BUTTON_WIDTH, BUTTON_HEIGHT)
+        }
+
+        for piece, pos in piece_positions.items():
+                if piece == "Rook":
+                    self.screen.blit(rook_img, pos)
+                elif piece == "Knight":
+                    self.screen.blit(knight_img, pos)
+                elif piece == "Bishop":
+                    self.screen.blit(bishop_img, pos)
+                elif piece == "Queen":
+                    self.screen.blit(queen_img, pos)
+        for piece, rect in buttons.items():
+            pygame.draw.rect(self.screen, GRAY, rect)
+            pygame.draw.rect(self.screen, BLACK, rect, 2)
+            font = pygame.font.Font(None, 36)
+            text = font.render(piece, True, BLACK)
+            text_rect = text.get_rect(center=rect.center)
+            self.screen.blit(text, text_rect)
+
+            
+        pygame.display.flip()
+        return buttons
+
+
+
         
         
                 

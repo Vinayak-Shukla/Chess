@@ -54,13 +54,13 @@ class PieceMovementLogic():
     def has_any_moves(self, color, board):
         moves = self.get_valid_moves_for_every_piece(color, board)
         return any(moves.values())
+    
     def is_checkmate(self, color, board):
         return self.is_king_in_check(color, board) and not self.has_any_moves(color,board)
     
     def is_stalemate(self, color, board):
         return not self.is_king_in_check(color,board) and not self.has_any_moves(color, board)
         
-    
     
     def is_square_attacked(self, row, col, color, board):
         moves = self.get_valid_moves_for_every_piece(self.opposite(color), board)
@@ -81,3 +81,7 @@ class PieceMovementLogic():
                 if(isinstance(board[row][col], Pawn)):
                     board[row][col].canEnPassant=False
                     board[row][col].enPassantSquare=None
+
+    def promote_pawn(self, color):
+        running = True
+    

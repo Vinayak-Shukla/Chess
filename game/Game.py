@@ -2,6 +2,10 @@ import pygame
 from board.Chessboard import Chessboard
 from pieces.King import King
 from pieces.Pawn import Pawn
+from pieces.Knight import Knight
+from pieces.Queen import Queen
+from pieces.Rook import Rook
+from pieces.Bishop import Bishop
 from .PieceMovementLogic import PieceMovementLogic
 
 white = "white"
@@ -14,11 +18,11 @@ class Game():
         self.piece_validity_check = PieceMovementLogic()
         self.selected_piece = None
         self.selected_square = None
-        self.current_turn = white  # Start with white's turn
-        self.possible_moves = None  # Initialize the board
+        self.current_turn = white
+        self.possible_moves = None
+        self.opponent_possible_moves = None
         self.square_size = self.boardObj.square_size
         self.canEnPassant = False
-        # Other initialization logic
     
     def handle_events(self):
         # Loop until the user clicks the close button
@@ -87,6 +91,9 @@ class Game():
                                 self.board[row][col-1].enPassantSquare = (row-1,col)
                             else:
                                 self.board[row][col-1].enPassantSquare = (row+1,col)
+                    elif((color=="white" and row == 7) or (color=="black" and row == 0)):
+                        buttons = self.boardObj.draw_promotion_pieces(color)
+                        self.handle_promotion(buttons)
 
                 self.move_piece(self.selected_square[0],self.selected_square[1],row,col)
                 if(self.selected_piece.has_moved is False):
@@ -142,5 +149,31 @@ class Game():
         if(self.piece_validity_check.has_any_moves(self.opposite(color), self.board)):
             return True
         return False
-
     
+    def handle_promotion(self, buttons):
+        running = True
+        while running:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
+                    # Check if a button was clicked
+                        for piece, rect in buttons.items():
+                            if rect.collidepoint(event.pos):
+                                print(f"Promote to {piece}")
+                                self.promote(self.selected_piece,piece)
+                                running = False
+    def promote(self, current, new):
+        color = self.selected_piece.color
+        if(new == "Knight"):
+            self.selected_piece = Knight(color)
+            self.board[self.selected_square[0]][self.selected_square[1]] = self.selected_piece
+        elif(new == "Queen"):
+            self.selected_piece = Queen(color)
+            self.board[self.selected_square[0]][self.selected_square[1]] = self.selected_piece
+        elif(new == "Rook"):
+            self.selected_piece = Rook(color)
+            self.board[self.selected_square[0]][self.selected_square[1]] = self.selected_piece
+        elif(new == "Bishop"):
+            self.selected_piece = Bishop(color)
+            self.board[self.selected_square[0]][self.selected_square[1]] = self.selected_piece

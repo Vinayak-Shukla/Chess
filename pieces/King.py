@@ -11,14 +11,15 @@ class King(ChessPiece):
         if(abs(start_col-end_col)<=1 and abs(start_row-end_row)<=1):
             return board[end_row][end_col] is None or board[end_row][end_col].color != self.color
         
-        can_castle, side = self.is_castling(start_row,start_col,end_row,end_col,board)
-        if(can_castle):
-            return True
-        if(side is None):
-            return False
+        if(self.has_moved is False):
+            can_castle, side = self.can_castle(start_row,start_col,end_row,end_col,board)
+            if(can_castle):
+                return True
+            if(side is None):
+                return False
         return False
     
-    def is_castling(self, start_row, start_col, end_row, end_col, board):
+    def can_castle(self, start_row, start_col, end_row, end_col, board):
         if not self.has_moved and abs(end_col - start_col) == 2 and start_row == end_row:
             if end_col - start_col == 2:  # Short castling
                 if self.can_castle_short(start_row, start_col, board):
