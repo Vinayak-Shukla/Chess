@@ -71,12 +71,10 @@ class Chessboard:
         self.screen = pygame.display.set_mode((self.width, self.height), pygame.RESIZABLE)
 
     #TODO - Clean up promotion pieces code and remove a lot of unnecessary fluff
-    #TODO - divide this singular large function into smaller more readable functions
+    #TODO - divide this singular large function into smaller functions
     def draw_promotion_pieces(self, color):
-        WHITE = (255, 255, 255)
         BLACK = (0, 0, 0)
         GRAY = (200, 200, 200)
-        RED = (255, 0, 0)
         
         piece_positions = {
             "Rook": (150, 50),
@@ -109,15 +107,6 @@ class Chessboard:
             "Queen": pygame.Rect(start_x + 4 * (BUTTON_WIDTH + BUTTON_MARGIN), 300, BUTTON_WIDTH, BUTTON_HEIGHT)
         }
 
-        for piece, pos in piece_positions.items():
-                if piece == "Rook":
-                    self.screen.blit(rook_img, pos)
-                elif piece == "Knight":
-                    self.screen.blit(knight_img, pos)
-                elif piece == "Bishop":
-                    self.screen.blit(bishop_img, pos)
-                elif piece == "Queen":
-                    self.screen.blit(queen_img, pos)
         for piece, rect in buttons.items():
             pygame.draw.rect(self.screen, GRAY, rect)
             pygame.draw.rect(self.screen, BLACK, rect, 2)
@@ -125,6 +114,14 @@ class Chessboard:
             text = font.render(piece, True, BLACK)
             text_rect = text.get_rect(center=rect.center)
             self.screen.blit(text, text_rect)
+            if piece == "Rook":
+                    self.screen.blit(rook_img, rook_img.get_rect(center=rect.center))
+            elif piece == "Knight":
+                self.screen.blit(knight_img, knight_img.get_rect(center=rect.center))
+            elif piece == "Bishop":
+                self.screen.blit(bishop_img, bishop_img.get_rect(center=rect.center))
+            elif piece == "Queen":
+                self.screen.blit(queen_img, queen_img.get_rect(center=rect.center))
 
             
         pygame.display.flip()

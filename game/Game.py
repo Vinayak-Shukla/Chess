@@ -23,6 +23,7 @@ class Game():
         self.opponent_possible_moves = None
         self.square_size = self.boardObj.square_size
         self.canEnPassant = False
+        self.removeEnPassant = False
     
     def handle_events(self):
         # Loop until the user clicks the close button
@@ -103,12 +104,15 @@ class Game():
                 self.boardObj.update(self.board)
                 if(self.canEnPassant):
                     self.canEnPassant = False
+                    self.removeEnPassant = True
                 else:
-                    self.piece_validity_check.end_en_passant(color, self.board)
+                    if(self.removeEnPassant):
+                        self.piece_validity_check.end_en_passant(color, self.board)
+                        self.removeEnPassant = False
                 #TODO-create displays for winning/stalemate for visual indicators
-                if(not self.valid_next_turn(self.opposite(color))):
+                if(not self.valid_next_turn(color)):
                     if(self.piece_validity_check.is_checkmate(self.opposite(color), self.board)):
-                            print(f"Checkmate! {self.color} wins!")
+                            print(f"Checkmate! {color} wins!")
                     elif(self.piece_validity_check.is_stalemate(self.opposite(color), self.board)):
                         print("It's a draw! Stalemate!")
                     else:
